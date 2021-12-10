@@ -2,6 +2,10 @@
 
 Information on the data, annontations, and benchmark will be available here towards the end of November. Watch this repo for updates.
 
+[*Looking-at-me*](https://github.com/EGO4D/social-interactions/tree/lam)
+
+[*Talking-to-me*](https://github.com/EGO4D/social-interactions/tree/ttm)
+
 Benchmark Contributors:
 
 James M. Rehg
