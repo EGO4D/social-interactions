@@ -15,7 +15,9 @@ pip install -r requirement.txt
 ***
 ### Data preparation
 
-Download data manifest (`manifest.csv`) and annotations (`av.json`) for audio-visual diarization benchmark following the Ego4D download [instructions](https://github.com/facebookresearch/Ego4d/blob/main/ego4d/cli/README.md).
+Download data manifest (`manifest.csv`) and annotations (`av.json`) for audio-visual diarization benchmark following the Ego4D download [instructions]
+###(page not found 404)
+(https://github.com/facebookresearch/Ego4d/blob/main/ego4d/cli/README.md).
 
 Note: the default folder to save videos and annotations is ```./data```, please create symbolic links in ```./data``` if you save them in another directory. The structure should be like this:
 
