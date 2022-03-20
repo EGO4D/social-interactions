@@ -4,13 +4,16 @@ sys.path.append('.')
 import torch
 import torch.optim
 import torch.utils.data
+import soundfile as sf
+from tqdm import tqdm
 from dataset.data_loader import ImagerLoader
+from dataset.test_loader import test_ImagerLoader
 from dataset.sampler import SequenceBatchSampler
 from model.model import BaselineLSTM
 from common.config import argparser
 from common.logger import create_logger
-from common.engine import train, validate
-from common.utils import PostProcessor, get_transform, save_checkpoint, collate_fn
+from common.engine import train, validate, evaluate
+from common.utils import PostProcessor, test_PostProcessor, get_transform, save_checkpoint, collate_fn
 
 
 def main(args):
@@ -58,8 +61,7 @@ def main(args):
             num_workers=args.num_workers,
             pin_memory=False)
     else:
-        test_dataset = ImagerLoader(args.img_path, args.wave_path, args.val_file, args.json_path, args.gt_path,
-                                    stride=args.test_stride, mode='val', transform=get_transform(False))
+        test_dataset = test_ImagerLoader(args.test_data_path, args.seg_info, transform=get_transform(False))
 
         test_loader = torch.utils.data.DataLoader(
             test_dataset,
@@ -98,13 +100,34 @@ def main(args):
 
     else:
         logger.info('start evaluating')
-        postprocess = PostProcessor(args)
-        mAP = validate(test_loader, model, postprocess)
-        logger.info(f'mAP: {mAP:.4f}')
+        postprocess = test_PostProcessor(args)
+        evaluate(test_loader, model, postprocess)
+        postprocess.mkfile()
 
 
 def run():
+
     args = argparser.parse_args()
+    if args.eval and not os.path.exists('./seg_info.json'):
+        data_dir = args.test_data_path
+        seginfo = {}
+
+        for seg_id in tqdm(os.listdir(data_dir)):
+            seg_path = os.path.join(data_dir, seg_id)
+            seginfo[seg_id] = {}
+            frame_list = []
+            for f in os.listdir(os.path.join(seg_path, 'face')):
+                fid = int(f.split('.')[0])
+                frame_list.append(fid)
+            frame_list.sort()
+            seginfo[seg_id]['frame_list'] = frame_list
+
+            aud, sr = sf.read(os.path.join(seg_path, 'audio', 'aud.wav'))
+            frame_num = int(aud.shape[0]/sr*30+1)
+            seginfo[seg_id]['frame_num'] = max(frame_num, max(frame_list)+1)
+
+        with open('./seg_info.json','w') as f:
+            json.dump(seginfo, f, indent=4)
     main(args)
 
 

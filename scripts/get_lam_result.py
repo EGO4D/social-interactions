@@ -14,6 +14,8 @@ def get_lam_result(json_path, result_path):
                 if not lam_data_list:
                     continue
                 for lam_data in lam_data_list:
+                    if lam_data['person'] is None:
+                        continue
                     person = lam_data['person']
                     start_frame = lam_data['start_frame']
                     end_frame = lam_data['end_frame']

@@ -69,7 +69,31 @@ Run the following script for inference:
 python run.py --eval --checkpoint ${checkpoint_path} --exp_path ${eval_output_dir}
 ```
 
-Our model trained from scratch on Ego4d yields `mAP:75.92% ACC:77.66%` on validation set. 
+Our model trained from scratch on Ego4d yields `mAP:52.85% ACC:60.24%` on validation set. 
+
+### 4. Test
+Download the test dataset with the CLI (--datasets social_test) or just directly on [S3](s3://ego4d-consortium-sharing/public/v1/social_test/).
+
+The default folder to save test dataset is ```./data```. The test dataset structure and the meaning of the file name are shown below:
+
+data/
+* final_test_data/
+  * segment_id/
+    * audio/
+      * aud.wav
+    * face/
+      * frame_id.jpg
+      * ...
+  * segment_id/
+    * audio/
+      * aud.wav
+    * face/
+      * frame_id.jpg
+      * ...
+
+Our baseline yields `mAP:53.88% ACC:54.33%` on test set.
+
+The output file is "pred.csv". You have to convert it to the right format shown on the [EvalAI Submission Guidelines](https://eval.ai/web/challenges/challenge-page/1625/submission) and submit it.
 
 ### Citation
 

@@ -1,5 +1,4 @@
 *.csv
-*.json
 *.jpg
 *.pth
 *.pt
@@ -13,6 +12,7 @@ __pycache__/
 pretrained/
 *.tar
 b1*/
+data/json/
 deprecated/
 data/csv/
 data/json_original/
@@ -20,3 +20,5 @@ data/result_LAM/
 data/result_TTM/
 data/video_imgs/
 data/wave/
+.vscode/
+__MACOSX/

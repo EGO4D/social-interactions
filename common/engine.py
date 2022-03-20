@@ -83,3 +83,30 @@ def validate(val_loader, model, postprocess):
     mAP = postprocess.get_mAP()
     
     return mAP
+
+def evaluate(val_loader, model, postprocess):
+    logger.info('evaluating')
+    batch_time = AverageMeter()
+    model.eval()
+    end = time.time()
+
+    for i, (video, audio, sid, fid_list) in enumerate(val_loader):
+
+        video = video.cuda()
+        audio = audio.cuda()
+
+        with torch.no_grad():
+            output = model(video, audio)
+            # output = model(video)
+
+            postprocess.update(output.detach().cpu(), sid, fid_list)
+
+            batch_time.update(time.time() - end)
+            end = time.time()
+
+        if i % 100 == 0:
+            logger.info('Processed: [{0}/{1}]\t'
+                        'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'.format(
+                        i, len(val_loader), batch_time=batch_time))
+    postprocess.save()
+

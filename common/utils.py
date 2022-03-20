@@ -85,6 +85,79 @@ class PostProcessor():
         subprocess.call(cmd, shell=True)
         shutil.rmtree(self.save_path)
         return run_evaluation(gt_file, pred_file)
+    
+    
+class test_PostProcessor():
+    def __init__(self, args):
+        self.exp_path = args.exp_path
+        self.save_path = f'{self.exp_path}/tmp'
+        if not os.path.exists(self.save_path):
+            os.mkdir(self.save_path)
+#         self.groundtruth = []
+        self.prediction = []
+#         self.groundtruthfile = f'{self.save_path}/gt.csv.rank.{args.rank}'
+        self.predctionfile = f'{self.save_path}/pred.csv.rank.{args.rank}'
+        self.current_seg = None
+        self.current_fid_list = []
+        self.segoutput = []
+    
+    def update(self, outputs, sid, fid_list):
+        #postprocess outputs of one minibatch
+        segid = sid[0]
+        if self.current_seg is None:
+            self.current_seg = segid
+            self.current_fid_list = fid_list
+            self.segoutput.append(outputs)
+        elif segid == self.current_seg:
+            self.segoutput.append(outputs)
+        else:
+            self._merge_output()
+            # update segments
+            self.current_seg = segid
+            self.current_fid_list = fid_list
+            self.segoutput = [outputs]
+    
+    def _merge_output(self):
+        # merge and save segments
+        pred = torch.cat([p for p in self.segoutput], dim=0)
+        pred = F.softmax(pred.mean(0), dim=-1)
+        for fid in self.current_fid_list:
+            self.prediction.append([self.current_seg, fid.item(), 1, pred[1].item()])
+
+    def save(self):
+        if len(self.segoutput) != 0:
+            self._merge_output()
+#         if os.path.exists(self.groundtruthfile):
+#             os.remove(self.groundtruthfile)
+        if os.path.exists(self.predctionfile):
+            os.remove(self.predctionfile)
+#         gt_df = pd.DataFrame(self.groundtruth)
+#         gt_df.to_csv(self.groundtruthfile, index=False, header=None)
+        pred_df = pd.DataFrame(self.prediction)
+        pred_df.to_csv(self.predctionfile, index=False, header=None)
+    
+    def mkfile(self):
+        #merge csv
+        merge_path = f'{self.exp_path}/result'
+        if not os.path.exists(merge_path):
+            os.mkdir(merge_path)
+
+#         gt_file = f'{merge_path}/gt.csv'
+#         if os.path.exists(gt_file):
+#             os.remove(gt_file)
+#         gts = glob.glob(f'{self.save_path}/gt.csv.rank.*')
+#         cmd = 'cat {} > {}'.format(' '.join(gts), gt_file)
+#         subprocess.call(cmd, shell=True)
+        pred_file = f'{merge_path}/pred.csv'
+        if os.path.exists(pred_file):
+            os.remove(pred_file)
+        preds = glob.glob(f'{self.save_path}/pred.csv.rank.*')
+        cmd = 'cat {} > {}'.format(' '.join(preds), pred_file)
+        subprocess.call(cmd, shell=True)
+        shutil.rmtree(self.save_path)
+#         return run_evaluation(gt_file, pred_file)
+    
+    
 
 
 def save_checkpoint(state, save_path, is_best=False, is_dist=False):

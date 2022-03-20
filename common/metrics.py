@@ -79,7 +79,7 @@ def load_csv(file, column_names):
     else:
         df = pd.DataFrame(file, columns=column_names)
     # Creates a unique id from frame timestamp and entity id.
-    df["uid"] = (df["video_id"] + ":" + df["segment_id"].map(str))
+    df["uid"] = (df["segment_id"] + ":" + df["frame_id"].map(str))
     return df.drop_duplicates("uid")
 
 
@@ -118,19 +118,7 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
         on="uid",
         suffixes=("_groundtruth", "_prediction"),
         validate="1:1").sort_values(
-            by=["score"], ascending=False).reset_index() 
-    # Validates that bounding boxes in ground truth and predictions match for the
-    # same uids.
-    df_merged["segment_correct"] = np.where(
-        eq(df_merged["start_time_groundtruth"],
-            df_merged["start_time_prediction"])
-        & eq(df_merged["end_time_groundtruth"],
-            df_merged["end_time_prediction"]), True, False)
-
-    if (~df_merged["segment_correct"]).sum() > 0:
-        raise ValueError(
-            "Mismatch between groundtruth and predictions segments found at "
-            + str(list(df_merged[~df_merged["segment_correct"]]["uid"])))
+            by=["score"], ascending=False).reset_index()
 
     return df_merged
 
@@ -176,12 +164,12 @@ def run_evaluation(groundtruth, predictions, verbose=False, threshold=0.5):
     df_groundtruth = load_csv(
         groundtruth,
         column_names=[
-            "video_id", "segment_id", "start_time", "end_time", "label"
+            "segment_id", "frame_id", "label"
         ])
     df_predictions = load_csv(
         predictions,
         column_names=[
-            "video_id", "segment_id", "start_time", "end_time", "label", "score"
+            "segment_id", "frame_id", "label", "score"
         ])
         
     APs = []
