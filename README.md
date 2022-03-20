@@ -15,7 +15,7 @@ pip install -r requirement.txt
 ***
 ### Data preparation
 
-Download data manifest (`manifest.csv`) and annotations (`av_{train/val/test_unannotated}.json`) for audio-visual diarization benchmark following the Ego4D download [instructions](https://github.com/facebookresearch/Ego4d/blob/main/ego4d/cli/README.md).
+Download data manifest (`manifest.csv`) and annotations (`av_{train/val}.json`) for audio-visual diarization benchmark following the Ego4D download [instructions](https://github.com/facebookresearch/Ego4d/blob/main/ego4d/cli/README.md).
 
 Note: the default folder to save videos and annotations is ```./data```, please create symbolic links in ```./data``` if you save them in another directory. The structure should be like this:
 
@@ -25,12 +25,9 @@ data/
 * json/
   * av_train.json
   * av_val.json
-  * av_test_unannotated.json
 * split/
-  * test.list
   * train.list
   * val.list
-  * full.list
 * videos/
   * 00407bd8-37b4-421b-9c41-58bb8f141716.mp4
   * 007beb60-cbab-4c9e-ace4-f5f1ba73fccf.mp4
@@ -78,6 +75,26 @@ CUDA_VISIBLE_DEVICES=${gpu_ids} python run.py --eval --dist --checkpoint ${check
 Our model trained from scratch on Ego4d yields `mAP:78.07% ACC:87.97%` on validation set. 
 
 If initialized from pretrained Gaze360 model, it can yield `mAP:79.90% ACC:91.78%`. Again, please specify `--model GazeLSTM` if you use it.
+
+### 4. Test
+Download the test dataset with the CLI (--datasets social_test) or just directly on [S3](s3://ego4d-consortium-sharing/public/v1/social_test/).
+
+The default folder to save test dataset is ```./data```. The test dataset structure and the meaning of the file name are shown below:
+
+data/
+* videos_challenge/
+  * video_id/
+    * track_id/
+      * unique_id.jpg
+      * ...
+  * video_id/
+    * track_id/
+      * unique_id.jpg
+      * ...
+
+Our baseline yields `mAP:66.07% ACC:75.38%` on test set.
+
+The output file is "pred.csv". You have to convert it to the right format shown on the [EvalAI Submission Guidelines](https://eval.ai/web/challenges/challenge-page/1624/submission) and submit it. 
 
 ### Citation
 

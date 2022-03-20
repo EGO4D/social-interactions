@@ -5,12 +5,12 @@ import torch
 import torch.optim
 import torch.utils.data
 from torch.utils.data import DistributedSampler
-from dataset.data_loader import ImagerLoader
+from dataset.data_loader import ImagerLoader, TestImagerLoader
 from model.model import BaselineLSTM, GazeLSTM
 from common.config import argparser
 from common.logger import create_logger
 from common.engine import train, validate
-from common.utils import PostProcessor, get_transform, save_checkpoint
+from common.utils import PostProcessor, get_transform, save_checkpoint, TestPostProcessor
 from common.distributed import distributed_init, is_master, synchronize
 
 
@@ -47,40 +47,39 @@ def main(args):
     torch.backends.cudnn.benchmark = False
 
     if not args.eval:
-        train_dataset = ImagerLoader(args.source_path, args.train_file, args.json_path, 
-                                    args.gt_path, stride=args.train_stride, transform=get_transform(True))
+        train_dataset = ImagerLoader(args.source_path, args.train_file, args.json_path,
+                                     args.gt_path, stride=args.train_stride, transform=get_transform(True))
 
-        val_dataset = ImagerLoader(args.source_path, args.val_file, args.json_path, args.gt_path, 
-                                stride=args.val_stride, mode='val', transform=get_transform(False))
+        val_dataset = ImagerLoader(args.source_path, args.val_file, args.json_path, args.gt_path,
+                                   stride=args.val_stride, mode='val', transform=get_transform(False))
 
         params = {}
         if args.dist:
-            params = {'sampler':DistributedSampler(train_dataset)}
+            params = {'sampler': DistributedSampler(train_dataset)}
         else:
             params = {'shuffle': True}
 
         train_loader = torch.utils.data.DataLoader(
             train_dataset,
             batch_size=args.batch_size,
-            num_workers=args.num_workers, 
-            pin_memory=False, 
+            num_workers=args.num_workers,
+            pin_memory=False,
             **params)
-        
+
         if args.dist:
-            params = {'sampler':DistributedSampler(val_dataset, shuffle=False)}
+            params = {'sampler': DistributedSampler(val_dataset, shuffle=False)}
         else:
             params = {'shuffle': False}
 
         val_loader = torch.utils.data.DataLoader(
             val_dataset,
             batch_size=args.batch_size,
-            num_workers=args.num_workers, 
-            pin_memory=False, 
+            num_workers=args.num_workers,
+            pin_memory=False,
             **params)
     else:
-        test_dataset = ImagerLoader(args.source_path, args.val_file, args.json_path, args.gt_path,
-                                    stride=args.test_stride, mode='test', transform=get_transform(False))
-        
+        test_dataset = TestImagerLoader(args.test_path, stride=args.test_stride, transform=get_transform(False))
+
         if args.dist:
             params = {'sampler': DistributedSampler(test_dataset, shuffle=False)}
         else:
@@ -111,7 +110,7 @@ def main(args):
 
             # evaluate on validation set
             postprocess = PostProcessor(args)
-            mAP = validate(val_loader, model, postprocess)
+            mAP = validate(val_loader, model, postprocess, mode='val')
 
             if is_master():
                 # remember best mAP in validation and save checkpoint
@@ -130,10 +129,8 @@ def main(args):
             synchronize()
     else:
         logger.info('start evaluating')
-        postprocess = PostProcessor(args)
-        mAP = validate(test_loader, model, postprocess)
-        if is_master():
-            logger.info(f'mAP: {mAP:.4f}')
+        postprocess = TestPostProcessor(args)
+        validate(test_loader, model, postprocess, mode='test')
 
 
 def distributed_main(device_id, args):

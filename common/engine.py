@@ -55,7 +55,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
                         data_time=data_time, loss=avg_loss))
 
 
-def validate(val_loader, model, postprocess):
+def validate(val_loader, model, postprocess, mode='val'):
     logger.info('evaluating')
     batch_time = AverageMeter()
     model.eval()
@@ -78,8 +78,11 @@ def validate(val_loader, model, postprocess):
                         i, len(val_loader), batch_time=batch_time))
     postprocess.save()
 
-    mAP = None
-    if is_master():
-        mAP = postprocess.get_mAP()
-    
-    return mAP
+    if mode == 'val':
+        mAP = None
+        if is_master():
+            mAP = postprocess.get_mAP()
+        return mAP
+
+    if mode == 'test':
+        print('generate pred.csv')

@@ -121,7 +121,7 @@ def merge_groundtruth_and_predictions(df_groundtruth, df_predictions):
         on="uid",
         suffixes=("_groundtruth", "_prediction"),
         validate="1:1").sort_values(
-            by=["score"], ascending=False).reset_index() 
+            by=["score"], ascending=False).reset_index()
     # Validates that bounding boxes in ground truth and predictions match for the
     # same uids.
     df_merged["bounding_box_correct"] = np.where(
@@ -220,8 +220,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-g",
-        "--groundtruth", 
-        type=str, 
+        "--groundtruth",
+        type=str,
         help="CSV file containing ground truth.",
         required=True)
     parser.add_argument(
@@ -234,7 +234,7 @@ def parse_arguments():
         "-t",
         "--threshold",
         type=float,
-        default=0.5, 
+        default=0.5,
         help="Threshold for computing confusion matrix.")
     parser.add_argument(
         "-v", "--verbose", help="Increase output verbosity.", action="store_true")
@@ -252,8 +252,8 @@ def compute_confusion_matrix(df_merged, thres):
     #confusion matrix
     print('\tLAM\tNLAM\nLAM\t{:.3f}\t{:.3f}\nNLAM\t{:.3f}\t{:.3f}'.format(
         TP / (TP+FN) * 100,
-        FN / (TP+FN) * 100, 
-        FP / (FP+TN) * 100, 
+        FN / (TP+FN) * 100,
+        FP / (FP+TN) * 100,
         TN / (FP+TN) * 100))
 
 
@@ -262,8 +262,3 @@ def main():
     args = parse_arguments()
     run_evaluation(**vars(args))
     logging.info("Computed in %s seconds", time.time() - start)
-
-
-if __name__ == "__main__":
-    main()
-    # run_evaluation('output/result/gt.csv', 'output/result/pred.csv')

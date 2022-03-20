@@ -15,7 +15,6 @@ def get_transform(is_train):
     return transform
 
 
-
 class PostProcessor():
     def __init__(self, args):
         self.exp_path = args.exp_path
@@ -26,9 +25,9 @@ class PostProcessor():
         self.prediction = []
         self.groundtruthfile = f'{self.save_path}/gt.csv.rank.{args.rank}'
         self.predctionfile = f'{self.save_path}/pred.csv.rank.{args.rank}'
-    
+
     def update(self, outputs, targets):
-        #postprocess outputs of one minibatch
+        # postprocess outputs of one minibatch
         outputs = F.softmax(outputs, dim=-1)
         for idx, scores in enumerate(outputs):
             uid = targets[0][idx]
@@ -41,7 +40,7 @@ class PostProcessor():
             label = targets[4][idx].item()
             self.groundtruth.append([uid, frameid, x1, y1, x2, y2, trackid, label])
             self.prediction.append([uid, frameid, x1, y1, x2, y2, trackid, 1, scores[1].item()])
-    
+
     def save(self):
         if os.path.exists(self.groundtruthfile):
             os.remove(self.groundtruthfile)
@@ -52,9 +51,9 @@ class PostProcessor():
         pred_df = pd.DataFrame(self.prediction)
         pred_df.to_csv(self.predctionfile, index=False, header=None)
         synchronize()
-    
+
     def get_mAP(self):
-        #merge csv
+        # merge csv
         merge_path = f'{self.exp_path}/result'
         if not os.path.exists(merge_path):
             os.mkdir(merge_path)
@@ -75,16 +74,51 @@ class PostProcessor():
         return run_evaluation(gt_file, pred_file)
 
 
-def save_checkpoint(state, save_path, is_best=False, is_dist=False):
+class TestPostProcessor():
+    def __init__(self, args):
+        self.exp_path = args.exp_path
+        self.save_path = f'{self.exp_path}/tmp'
+        if not os.path.exists(self.save_path) and is_master():
+            os.mkdir(self.save_path)
+        self.prediction = []
+        self.predctionfile = f'{self.save_path}/pred.csv.rank.{args.rank}'
 
+    def update(self, outputs, targets):
+        # postprocess outputs of one minibatch
+        outputs = F.softmax(outputs, dim=-1)
+        for idx, scores in enumerate(outputs):
+            uid = targets[0][idx]
+            trackid = targets[1][idx]
+            unique_id = targets[2][idx]
+            self.prediction.append([uid, unique_id, trackid, 1, scores[1].item()])
+
+    def save(self):
+        if os.path.exists(self.predctionfile):
+            os.remove(self.predctionfile)
+        pred_df = pd.DataFrame(self.prediction)
+        pred_df.to_csv(self.predctionfile, index=False, header=None)
+        synchronize()
+
+        #merge csv
+        merge_path = f'{self.exp_path}/result'
+        if not os.path.exists(merge_path) and is_master():
+            os.mkdir(merge_path)
+        pred_file = f'{merge_path}/pred.csv'
+        preds = glob.glob(f'{self.save_path}/pred.csv.rank.*')
+        cmd = 'cat {} > {}'.format(' '.join(preds), pred_file)
+        subprocess.call(cmd, shell=True)
+        shutil.rmtree(self.save_path)
+
+
+def save_checkpoint(state, save_path, is_best=False, is_dist=False):
     save_path = f'{save_path}/checkpoint'
     if not os.path.exists(save_path):
         os.mkdir(save_path)
 
     epoch = state['epoch']
-    filename= f'{save_path}/epoch_{epoch}.pth'
+    filename = f'{save_path}/epoch_{epoch}.pth'
     torch.save(state, filename)
-    
+
     if is_best:
         if os.path.exists(f'{save_path}/best.pth'):
             os.remove(f'{save_path}/best.pth')
