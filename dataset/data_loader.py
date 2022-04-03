@@ -136,7 +136,7 @@ def make_dataset(file_list, img_anno, audio_anno, stride=1, min_frames=15, max_f
                 end_frame = int(gt['end_frame'])
                 seg_length = end_frame - start_frame + 1
 
-            if ('train' in file_list and seg_length < min_frames) or (seg_length <= 1):
+            if ('train' in file_list and seg_length < min_frames) or (seg_length <= 1) or (personid == 0):
                 continue
             elif seg_length > max_frames:
                 it = int(seg_length / max_frames)
