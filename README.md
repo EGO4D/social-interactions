@@ -77,7 +77,7 @@ Our model trained from scratch on Ego4d yields `mAP:78.07% ACC:87.97%` on valida
 If initialized from pretrained Gaze360 model, it can yield `mAP:79.90% ACC:91.78%`. Again, please specify `--model GazeLSTM` if you use it.
 
 ### 4. Test
-Download the test dataset with the CLI (--datasets social_test) or just directly on [S3](s3://ego4d-consortium-sharing/public/v1/social_test/).
+Download the test dataset with the CLI (--datasets social_test) or just directly on S3 (s3://ego4d-consortium-sharing/public/v1/social_test/).
 
 The default folder to save test dataset is ```./data```. The test dataset structure and the meaning of the file name are shown below:
 
