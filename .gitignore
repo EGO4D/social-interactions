@@ -22,3 +22,5 @@ data/video_imgs/
 data/wave/
 .vscode/
 __MACOSX/
+data/.DS_Store
+data/split/.DS_Store
