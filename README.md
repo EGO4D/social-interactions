@@ -18,7 +18,7 @@ pip install -r requirement.txt
 
 Skip the following steps if you already get the data following the instructions in *Looking-at-me*.
 
-Download data manifest (`manifest.csv`) and annotations (`av_{train/val/test_unannotated}.json`) for audio-visual diarization benchmark following the Ego4D download [instructions](https://github.com/facebookresearch/Ego4d/blob/main/ego4d/cli/README.md).
+Download data manifest (`manifest.csv`) and annotations (`av_{train/val}.json`) for audio-visual diarization benchmark following the Ego4D download [instructions](https://github.com/facebookresearch/Ego4d/blob/main/ego4d/cli/README.md).
 
 Note: the default folder to save videos and annotations is ```./data```, please create symbolic links in ```./data``` if you save them in another directory. The structure should be like this:
 
@@ -28,7 +28,6 @@ data/
 * json/
   * av_train.json
   * av_val.json
-  * av_test_unannotated.json
 * split/
   * test.list
   * train.list
@@ -72,7 +71,7 @@ python run.py --eval --checkpoint ${checkpoint_path} --exp_path ${eval_output_di
 Our model trained from scratch on Ego4d yields `mAP:52.85% ACC:60.24%` on validation set. 
 
 ### 4. Test
-Download the test dataset with the CLI (--datasets social_test) or just directly on [S3](s3://ego4d-consortium-sharing/public/v1/social_test/).
+Download the test dataset with the CLI (--datasets social_test) or just directly on S3 (s3://ego4d-consortium-sharing/public/v1/social_test/).
 
 The default folder to save test dataset is ```./data```. The test dataset structure and the meaning of the file name are shown below:
 
