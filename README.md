@@ -94,7 +94,7 @@ data/
 
 Our baseline yields `mAP:66.07% ACC:75.38%` on test set.
 
-The output file is "pred.csv". You have to convert it to the right format shown on the [EvalAI Submission Guidelines](https://eval.ai/web/challenges/challenge-page/1624/submission) and submit it. 
+The output file is "pred.csv". You have to convert it to the right format shown on the [EvalAI Submission Guidelines](https://eval.ai/challenge/1624/submit) and submit it. 
 
 ### Citation
 
