@@ -52,6 +52,10 @@ python scripts/preprocessing.py
 ```
 
 ### 2. Train
+
+### Updates 11 Jun 2022
+The training dataset in this codebased is based on the original instead of the released cropped dataset, please modify it accordingly if you want to train the model again.
+
 Run the following script to start training:
 ```
 python run.py
