@@ -94,6 +94,12 @@ data/
 
 Our baseline yields `mAP:66.07% ACC:75.38%` on test set.
 
+#### Updata on 20 Jun 2022
+**Note**: The Table 30 in the Sup. Mat. has a mistake, the results of ours on val set and Gaze360 baseline on test set are swapped. Please check the correct Table here:
+
+![image](https://user-images.githubusercontent.com/24368479/174537579-1c6b7a52-8ae7-4f1e-a4c1-428cc90cda0c.png)
+
+
 The output file is "pred.csv". You have to convert it to the right format shown on the [EvalAI Submission Guidelines](https://eval.ai/challenge/1624/submit) and submit it. 
 
 ### Citation
