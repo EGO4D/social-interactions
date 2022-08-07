@@ -23,8 +23,8 @@ for video in ori_annot_val['videos']:
     for clip in video['clips']:
         clip_uid = clip['clip_uid']
         print(f'chunking {clip_uid}...')
-        start_sec = clip['parent_start_sec']
-        end_sec = clip['parent_end_sec']
+        start_sec = clip['video_start_sec']
+        end_sec = clip['video_end_sec']
         cmd = f'ffmpeg -y -i data/tmp/{video_uid} -ss {start_sec} -to {end_sec} -c:a copy -vcodec libx264 -keyint_min 2 -g 1  -y data/videos/{clip_uid}.mp4'
         subprocess.call(cmd, shell=True)
     os.remove(f'data/tmp/{video_uid}')
@@ -39,8 +39,8 @@ for video in ori_annot_train['videos']:
     for clip in video['clips']:
         clip_uid = clip['clip_uid']
         print(f'chunking {clip_uid}...')
-        start_sec = clip['parent_start_sec']
-        end_sec = clip['parent_end_sec']
+        start_sec = clip['video_start_sec']
+        end_sec = clip['video_end_sec']
         cmd = f'ffmpeg -y -i data/tmp/{video_uid} -ss {start_sec} -to {end_sec} -c:a copy -vcodec libx264 -keyint_min 2 -g 1  -y data/videos/{clip_uid}.mp4'
         subprocess.call(cmd, shell=True)
     os.remove(f'data/tmp/{video_uid}')
